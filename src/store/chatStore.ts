@@ -1,6 +1,6 @@
 // 聊天状态管理
 import { create } from 'zustand';
-import { chatApi } from '../api/chatApi';
+import { chatApi } from '../utils/api';
 import { SendMessagePayload, TurnTrace, BrainName } from '../types/trace';
 
 export interface Message {

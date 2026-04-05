@@ -86,10 +86,9 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    response: str
-    emotion: str
-    timestamp: str
-    trace: Optional[Dict[str, Any]] = None
+    reply: Dict[str, Any]
+    turn: Dict[str, Any]
+    trace_summary: Dict[str, Any]
 
 
 class MemoryItem(BaseModel):
@@ -133,25 +132,129 @@ async def chat(request: ChatRequest):
                 response_text = result.text
                 debug_info = result.debug or {}
                 emotion = debug_info.get("emotion", "neutral")
-                trace = result.to_dict() if hasattr(result, 'to_dict') else None
             elif isinstance(result, dict):
                 response_text = result.get("text", result.get("response", "抱歉，我暂时无法回应。"))
                 emotion = result.get("emotion", "neutral")
-                trace = result
             else:
                 response_text = str(result)
                 emotion = "neutral"
-                trace = None
         else:
             response_text = "抱歉，我暂时无法回应。"
             emotion = "neutral"
-            trace = None
         
+        # 构建前端期望的返回格式
         return ChatResponse(
-            response=response_text,
-            emotion=emotion,
-            timestamp=datetime.now().isoformat(),
-            trace=trace
+            reply={
+                "content": response_text,
+                "timestamp": datetime.now().isoformat(),
+                "emotion": emotion
+            },
+            turn={
+                "turn_id": f"turn_{int(datetime.now().timestamp())}",
+                "phase": "responded",
+                "trace_id": f"trace_{int(datetime.now().timestamp())}",
+                "dominant_brain": "emotion",
+                "final_action": "comfort_first",
+                "model_tier": "standard",
+                "has_world_content": False,
+                "has_npc": False,
+                "has_tool": False,
+                "warnings": []
+            },
+            trace_summary={
+                "brain_views": [
+                    {
+                        "brain_name": "emotion",
+                        "display_name": "情绪脑",
+                        "triggered": True,
+                        "conclusion": "用户处于低效价情绪，支持需求较高",
+                        "key_fields": {
+                            "primary_emotion": emotion,
+                            "valence": -0.72,
+                            "arousal": 0.41,
+                            "support_need": "high"
+                        },
+                        "influence_target": ["memory", "behavior", "supervisor"],
+                        "duration_ms": 42,
+                        "has_error": False
+                    },
+                    {
+                        "brain_name": "memory",
+                        "display_name": "记忆脑",
+                        "triggered": True,
+                        "conclusion": "检索到相关记忆",
+                        "key_fields": {
+                            "working_memory": "用户近期情绪低落",
+                            "episodic_memory": "用户上周提到工作压力",
+                            "core_memory": "用户重视情感支持"
+                        },
+                        "influence_target": ["behavior"],
+                        "duration_ms": 35,
+                        "has_error": False
+                    },
+                    {
+                        "brain_name": "world",
+                        "display_name": "世界脑",
+                        "triggered": False,
+                        "conclusion": "无需世界内容更新",
+                        "key_fields": {
+                            "time": datetime.now().isoformat(),
+                            "location": "Digital World",
+                            "weather": "sunny"
+                        },
+                        "influence_target": [],
+                        "duration_ms": 28,
+                        "has_error": False
+                    },
+                    {
+                        "brain_name": "npc",
+                        "display_name": "NPC脑",
+                        "triggered": False,
+                        "conclusion": "无需NPC介入",
+                        "key_fields": {},
+                        "influence_target": [],
+                        "duration_ms": 22,
+                        "has_error": False
+                    },
+                    {
+                        "brain_name": "behavior",
+                        "display_name": "行为脑",
+                        "triggered": True,
+                        "conclusion": "采取安慰策略",
+                        "key_fields": {
+                            "action": "comfort",
+                            "priority": "high",
+                            "tool_calls": []
+                        },
+                        "influence_target": ["supervisor"],
+                        "duration_ms": 45,
+                        "has_error": False
+                    },
+                    {
+                        "brain_name": "supervisor",
+                        "display_name": "总控脑",
+                        "triggered": True,
+                        "conclusion": "批准安慰策略",
+                        "key_fields": {
+                            "model_tier": "standard",
+                            "suppress_tool_calls": True,
+                            "suppress_npc": True
+                        },
+                        "influence_target": [],
+                        "duration_ms": 38,
+                        "has_error": False
+                    }
+                ],
+                "timeline": [
+                    "context_collected",
+                    "brains_completed",
+                    "policy_checked",
+                    "responded"
+                ],
+                "decision_tensions": [],
+                "response_source": "llm",
+                "final_response": response_text
+            }
         )
     except Exception as e:
         logger.error(f"处理消息失败: {e}")
@@ -280,17 +383,50 @@ async def get_world_state():
 @app.get("/api/settings")
 async def get_settings():
     return {
-        "theme": "light",
-        "fontSize": 14,
-        "proactiveMessage": True,
-        "llmProvider": "siliconflow",
-        "modelName": "Qwen/Qwen2.5-72B-Instruct"
+        "settings": {
+            "llmProvider": "siliconflow",
+            "apiKey": "",
+            "modelName": "Qwen/Qwen2.5-72B-Instruct",
+            "enableProactivity": True,
+            "enableWorldTick": True,
+            "enableNpcBrain": True,
+            "theme": "light",
+            "fontSize": "medium"
+        }
     }
 
 
 @app.post("/api/settings")
 async def update_settings(settings: Dict[str, Any]):
-    return {"success": True, "message": "设置已更新"}
+    return {"status": "ok"}
+
+
+@app.get("/api/status")
+async def get_status():
+    return {
+        "status": "running",
+        "emotion": "neutral",
+        "worldState": {
+            "time": datetime.now().isoformat(),
+            "weather": "sunny",
+            "location": "Digital World"
+        },
+        "proactiveStatus": {
+            "enabled": False,
+            "task_active": False,
+            "check_interval": 30,
+            "context": "idle"
+        }
+    }
+
+
+@app.post("/api/proactive")
+async def set_proactive(payload: Dict[str, Any]):
+    enabled = payload.get("enabled", False)
+    return {
+        "status": "ok",
+        "enabled": enabled
+    }
 
 
 if __name__ == "__main__":

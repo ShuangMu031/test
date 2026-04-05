@@ -75,7 +75,7 @@ export const useMemoryStore = create<MemoryState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await memoryApi.getEpisodicMemory();
-      set({ episodicMemory: response.events, isLoading: false });
+      set({ episodicMemory: response.memories, isLoading: false });
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : '获取事件记忆失败',
@@ -88,7 +88,7 @@ export const useMemoryStore = create<MemoryState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await memoryApi.getWorkingMemory();
-      set({ workingMemory: response.items, isLoading: false });
+      set({ workingMemory: response.memories, isLoading: false });
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : '获取工作记忆失败',

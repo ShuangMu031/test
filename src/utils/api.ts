@@ -1,6 +1,6 @@
 // API工具函数，用于与后端API进行交互
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
 // 通用请求函数
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -23,14 +23,44 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 // 聊天相关API
 export const chatApi = {
   // 发送消息并获取响应
-  sendMessage: (message: string) => {
+  sendMessage: (payload: any) => {
     return request<{
-      response: string;
-      emotion: string;
-      timestamp: string;
+      reply: {
+        content: string;
+        timestamp: string;
+        emotion: string;
+      };
+      turn: {
+        turn_id: string;
+        phase: string;
+        trace_id: string;
+        dominant_brain: string;
+        final_action: string;
+        model_tier: string;
+        has_world_content: boolean;
+        has_npc: boolean;
+        has_tool: boolean;
+        warnings: string[];
+      };
+      trace_summary: {
+        brain_views: Array<{
+          brain_name: string;
+          display_name: string;
+          triggered: boolean;
+          conclusion: string;
+          key_fields: Record<string, unknown>;
+          influence_target: string[];
+          duration_ms: number;
+          has_error: boolean;
+        }>;
+        timeline: string[];
+        decision_tensions: Array<Record<string, unknown>>;
+        response_source: string;
+        final_response: string;
+      };
     }>('/chat', {
       method: 'POST',
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message: payload.message, scene: payload.scene }),
     });
   },
 };
@@ -63,7 +93,7 @@ export const memoryApi = {
   // 获取事件记忆
   getEpisodicMemory: () => {
     return request<{
-      events: Array<{
+      memories: Array<{
         id: string;
         content: string;
         timestamp: string;
@@ -75,7 +105,7 @@ export const memoryApi = {
   // 获取工作记忆
   getWorkingMemory: () => {
     return request<{
-      items: Array<{
+      memories: Array<{
         id: string;
         content: string;
         timestamp: string;
