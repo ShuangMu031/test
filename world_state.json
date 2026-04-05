@@ -1,0 +1,45 @@
+{
+  "world_version": 44,
+  "world_datetime": "2026-04-05T04:26:26.081450",
+  "tick_minutes": 5,
+  "real_tick_seconds": 30,
+  "last_tick_real_ts": 1775378200.745443,
+  "location": "宿舍",
+  "weather": "小雨",
+  "energy": 1.0,
+  "hunger": 0.5866666666666668,
+  "npcs": {
+    "npc_001": {
+      "npc_id": "npc_001",
+      "name": "小明",
+      "location": "宿舍",
+      "mood": "平静",
+      "relationship": 0.4785
+    },
+    "npc_002": {
+      "npc_id": "npc_002",
+      "name": "小红",
+      "location": "宿舍",
+      "mood": "平静",
+      "relationship": 0.6784999999999975
+    },
+    "npc_003": {
+      "npc_id": "npc_003",
+      "name": "小刚",
+      "location": "宿舍",
+      "mood": "平静",
+      "relationship": 0.3005
+    }
+  },
+  "recent_events": [
+    {
+      "event_id": "evt_1",
+      "event_type": "tick",
+      "description": "时间推进 5 分钟",
+      "timestamp": "2026-04-05T16:35:40.742820",
+      "participants": [],
+      "metadata": {}
+    }
+  ],
+  "saved_at": "2026-04-05T16:36:40.745508"
+}

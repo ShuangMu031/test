@@ -1,0 +1,12 @@
+"""
+长度限制配置
+
+定义 prompt 各部分的长度限制。
+"""
+
+
+MAX_MESSAGE_LENGTH = 500
+MAX_MEMORY_LENGTH = 300
+MAX_DIALOGUE_HISTORY = 5
+MAX_MEMORY_COUNT = 3
+MAX_NPC_COUNT = 3
