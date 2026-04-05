@@ -1,27 +1,27 @@
 {
-  "world_version": 69,
-  "world_datetime": "2026-04-05T06:31:26.081450",
+  "world_version": 126,
+  "world_datetime": "2026-04-05T11:16:26.081450",
   "tick_minutes": 5,
   "real_tick_seconds": 30,
-  "last_tick_real_ts": 1775381566.074868,
+  "last_tick_real_ts": 1775384986.223097,
   "location": "宿舍",
-  "weather": "晴朗",
-  "energy": 0.9708333333333334,
-  "hunger": 0.7533333333333345,
+  "weather": "阴天",
+  "energy": 0.7333333333333343,
+  "hunger": 1.0,
   "npcs": {
     "npc_001": {
       "npc_id": "npc_001",
       "name": "小明",
-      "location": "宿舍",
-      "mood": "开心",
-      "relationship": 0.46599999999999997
+      "location": "食堂",
+      "mood": "平静",
+      "relationship": 0.43749999999999994
     },
     "npc_002": {
       "npc_id": "npc_002",
       "name": "小红",
-      "location": "宿舍",
-      "mood": "开心",
-      "relationship": 0.6659999999999962
+      "location": "食堂",
+      "mood": "平静",
+      "relationship": 0.637499999999993
     },
     "npc_003": {
       "npc_id": "npc_003",
@@ -33,165 +33,171 @@
   },
   "recent_events": [
     {
-      "event_id": "evt_7",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:13:46.024645",
+      "event_id": "evt_needs_1775384446.202249",
+      "event_type": "need_alert",
+      "description": "感到有些饿了",
+      "timestamp": "2026-04-05T10:20:46.202269",
       "participants": [],
       "metadata": {}
     },
     {
-      "event_id": "evt_period_1775380486.026807",
+      "event_id": "evt_weather_1775384446.202299",
+      "event_type": "weather_change",
+      "description": "天气从 晴朗 变为 阴天",
+      "timestamp": "2026-04-05T10:20:46.202302",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_101",
+      "event_type": "tick",
+      "description": "时间推进 5 分钟",
+      "timestamp": "2026-04-05T10:20:46.203377",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_needs_1775384506.204518",
+      "event_type": "need_alert",
+      "description": "感到有些饿了",
+      "timestamp": "2026-04-05T10:21:46.204539",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_103",
+      "event_type": "tick",
+      "description": "时间推进 5 分钟",
+      "timestamp": "2026-04-05T10:21:46.205782",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_needs_1775384566.206939",
+      "event_type": "need_alert",
+      "description": "感到有些饿了",
+      "timestamp": "2026-04-05T10:22:46.206956",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_105",
+      "event_type": "tick",
+      "description": "时间推进 5 分钟",
+      "timestamp": "2026-04-05T10:22:46.207848",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_needs_1775384626.210398",
+      "event_type": "need_alert",
+      "description": "感到有些饿了",
+      "timestamp": "2026-04-05T10:23:46.210428",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_107",
+      "event_type": "tick",
+      "description": "时间推进 5 分钟",
+      "timestamp": "2026-04-05T10:23:46.211850",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_needs_1775384686.212463",
+      "event_type": "need_alert",
+      "description": "感到有些饿了",
+      "timestamp": "2026-04-05T10:24:46.212482",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_109",
+      "event_type": "tick",
+      "description": "时间推进 5 分钟",
+      "timestamp": "2026-04-05T10:24:46.213681",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_needs_1775384746.214017",
+      "event_type": "need_alert",
+      "description": "感到有些饿了",
+      "timestamp": "2026-04-05T10:25:46.214036",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_111",
+      "event_type": "tick",
+      "description": "时间推进 5 分钟",
+      "timestamp": "2026-04-05T10:25:46.215462",
+      "participants": [],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_npc_1775384806.216599_npc_001",
+      "event_type": "npc_move",
+      "description": "小明 从 图书馆 去了 食堂",
+      "timestamp": "2026-04-05T10:26:46.216620",
+      "participants": [
+        "npc_001"
+      ],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_npc_1775384806.216631_npc_002",
+      "event_type": "npc_move",
+      "description": "小红 从 教室 去了 食堂",
+      "timestamp": "2026-04-05T10:26:46.216634",
+      "participants": [
+        "npc_002"
+      ],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_npc_1775384806.216639_npc_003",
+      "event_type": "npc_move",
+      "description": "小刚 从 教室 去了 宿舍",
+      "timestamp": "2026-04-05T10:26:46.216642",
+      "participants": [
+        "npc_003"
+      ],
+      "metadata": {}
+    },
+    {
+      "event_id": "evt_period_1775384806.216645",
       "event_type": "time_period_change",
-      "description": "时间从 深夜 进入 清晨",
-      "timestamp": "2026-04-05T09:14:46.026827",
+      "description": "时间从 上午 进入 中午",
+      "timestamp": "2026-04-05T10:26:46.216648",
       "participants": [],
       "metadata": {}
     },
     {
-      "event_id": "evt_9",
+      "event_id": "evt_116",
       "event_type": "tick",
       "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:14:46.028185",
+      "timestamp": "2026-04-05T10:26:46.218001",
       "participants": [],
       "metadata": {}
     },
     {
-      "event_id": "evt_10",
+      "event_id": "evt_117",
       "event_type": "tick",
       "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:15:46.032062",
+      "timestamp": "2026-04-05T10:27:46.220442",
       "participants": [],
       "metadata": {}
     },
     {
-      "event_id": "evt_11",
+      "event_id": "evt_118",
       "event_type": "tick",
       "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:16:46.033566",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_12",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:17:46.034981",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_13",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:18:46.037183",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_14",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:19:46.039285",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_15",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:20:46.041107",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_16",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:21:46.043595",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_17",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:22:46.047074",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_18",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:23:46.054810",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_19",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:24:46.058033",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_20",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:25:46.059310",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_21",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:26:46.060654",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_22",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:27:46.063640",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_23",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:28:46.066190",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_24",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:29:46.068437",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_25",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:30:46.071579",
-      "participants": [],
-      "metadata": {}
-    },
-    {
-      "event_id": "evt_26",
-      "event_type": "tick",
-      "description": "时间推进 5 分钟",
-      "timestamp": "2026-04-05T09:31:46.074022",
+      "timestamp": "2026-04-05T10:28:46.222108",
       "participants": [],
       "metadata": {}
     }
   ],
-  "saved_at": "2026-04-05T09:32:46.074975"
+  "saved_at": "2026-04-05T10:29:46.223213"
 }
