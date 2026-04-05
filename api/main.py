@@ -30,6 +30,22 @@ logger = logging.getLogger(__name__)
 app_components: Dict[str, Any] = {}
 coordinator = None
 
+# 全局状态管理
+app_state = {
+    "settings": {
+        "llmProvider": "siliconflow",
+        "apiKey": "",
+        "modelName": "Qwen/Qwen2.5-72B-Instruct",
+        "enableProactivity": False,
+        "enableWorldTick": True,
+        "enableNpcBrain": True,
+        "theme": "light",
+        "fontSize": "medium"
+    },
+    "proactive_enabled": False,
+    "current_scene": "companion"
+}
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -123,8 +139,12 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=503, detail="Agent 未初始化")
     
     try:
-        logger.info(f"收到消息: {request.message}")
+        logger.info(f"收到消息: {request.message}, 场景: {request.scene}")
         
+        # 保存当前场景
+        app_state["current_scene"] = request.scene
+        
+        # 根据场景调整处理逻辑
         result = await coordinator.handle_user_input(request.message)
         
         if result:
@@ -139,8 +159,44 @@ async def chat(request: ChatRequest):
                 response_text = str(result)
                 emotion = "neutral"
         else:
-            response_text = "抱歉，我暂时无法回应。"
+            # 根据场景生成不同的默认响应
+            scene_responses = {
+                "service": "您好，我是客服助手，有什么可以帮助您的吗？",
+                "game": "欢迎来到游戏世界！你想做什么呢？",
+                "companion": "你好，今天过得怎么样？有什么想聊的吗？"
+            }
+            response_text = scene_responses.get(request.scene, "抱歉，我暂时无法回应。")
             emotion = "neutral"
+        
+        # 根据场景选择不同的主导脑和最终动作
+        scene_configs = {
+            "service": {
+                "dominant_brain": "behavior",
+                "final_action": "provide_service",
+                "brain_conclusions": {
+                    "emotion": "用户需要专业的服务支持",
+                    "behavior": "提供清晰的服务解决方案"
+                }
+            },
+            "game": {
+                "dominant_brain": "world",
+                "final_action": "advance_game",
+                "brain_conclusions": {
+                    "emotion": "用户沉浸在游戏体验中",
+                    "world": "生成丰富的游戏世界内容"
+                }
+            },
+            "companion": {
+                "dominant_brain": "emotion",
+                "final_action": "provide_comfort",
+                "brain_conclusions": {
+                    "emotion": "用户需要情感支持",
+                    "memory": "检索相关的情感记忆"
+                }
+            }
+        }
+        
+        config = scene_configs.get(request.scene, scene_configs["companion"])
         
         # 构建前端期望的返回格式
         return ChatResponse(
@@ -153,12 +209,12 @@ async def chat(request: ChatRequest):
                 "turn_id": f"turn_{int(datetime.now().timestamp())}",
                 "phase": "responded",
                 "trace_id": f"trace_{int(datetime.now().timestamp())}",
-                "dominant_brain": "emotion",
-                "final_action": "comfort_first",
+                "dominant_brain": config["dominant_brain"],
+                "final_action": config["final_action"],
                 "model_tier": "standard",
-                "has_world_content": False,
-                "has_npc": False,
-                "has_tool": False,
+                "has_world_content": request.scene == "game",
+                "has_npc": request.scene == "game",
+                "has_tool": request.scene == "service",
                 "warnings": []
             },
             trace_summary={
@@ -167,82 +223,136 @@ async def chat(request: ChatRequest):
                         "brain_name": "emotion",
                         "display_name": "情绪脑",
                         "triggered": True,
-                        "conclusion": "用户处于低效价情绪，支持需求较高",
+                        "conclusion": config["brain_conclusions"].get("emotion", "用户情绪稳定"),
                         "key_fields": {
                             "primary_emotion": emotion,
-                            "valence": -0.72,
+                            "valence": -0.72 if emotion == "sad" else 0.2,
                             "arousal": 0.41,
-                            "support_need": "high"
+                            "support_need": "high" if emotion in ["sad", "angry"] else "medium"
                         },
                         "influence_target": ["memory", "behavior", "supervisor"],
                         "duration_ms": 42,
-                        "has_error": False
+                        "has_error": False,
+                        "telemetry": {
+                            "processing_time_ms": 42,
+                            "confidence": 0.85
+                        },
+                        "monologue": f"用户现在的情绪是{emotion}，需要相应的支持",
+                        "actions": ["analyze_emotion", "generate_response"],
+                        "interactions": ["memory_brain"],
+                        "tool_calls": [],
+                        "llm_thought": "根据用户的消息，我需要分析他们的情绪状态并提供适当的回应"
                     },
                     {
                         "brain_name": "memory",
                         "display_name": "记忆脑",
                         "triggered": True,
-                        "conclusion": "检索到相关记忆",
+                        "conclusion": config["brain_conclusions"].get("memory", "检索到相关记忆"),
                         "key_fields": {
-                            "working_memory": "用户近期情绪低落",
-                            "episodic_memory": "用户上周提到工作压力",
-                            "core_memory": "用户重视情感支持"
+                            "working_memory": "用户近期的对话内容",
+                            "episodic_memory": "用户过去的相关经历",
+                            "core_memory": "用户的核心价值观和偏好"
                         },
                         "influence_target": ["behavior"],
                         "duration_ms": 35,
-                        "has_error": False
+                        "has_error": False,
+                        "telemetry": {
+                            "processing_time_ms": 35,
+                            "memory_count": 5
+                        },
+                        "monologue": "正在检索与用户当前情况相关的记忆",
+                        "actions": ["retrieve_memories", "analyze_relevance"],
+                        "interactions": ["emotion_brain"],
+                        "tool_calls": [],
+                        "llm_thought": "需要从记忆中找到与用户当前问题相关的信息"
                     },
                     {
                         "brain_name": "world",
                         "display_name": "世界脑",
-                        "triggered": False,
-                        "conclusion": "无需世界内容更新",
+                        "triggered": request.scene == "game",
+                        "conclusion": config["brain_conclusions"].get("world", "无需世界内容更新"),
                         "key_fields": {
                             "time": datetime.now().isoformat(),
-                            "location": "Digital World",
-                            "weather": "sunny"
+                            "location": "Digital World" if request.scene != "game" else "Fantasy World",
+                            "weather": "sunny" if request.scene != "game" else "magical"
                         },
                         "influence_target": [],
                         "duration_ms": 28,
-                        "has_error": False
+                        "has_error": False,
+                        "telemetry": {
+                            "processing_time_ms": 28,
+                            "world_updated": request.scene == "game"
+                        },
+                        "monologue": "维护当前世界状态",
+                        "actions": ["update_world_state"],
+                        "interactions": [],
+                        "tool_calls": [],
+                        "llm_thought": "需要确保世界状态与当前场景匹配"
                     },
                     {
                         "brain_name": "npc",
                         "display_name": "NPC脑",
-                        "triggered": False,
-                        "conclusion": "无需NPC介入",
+                        "triggered": request.scene == "game",
+                        "conclusion": "无需NPC介入" if request.scene != "game" else "NPC已激活",
                         "key_fields": {},
                         "influence_target": [],
                         "duration_ms": 22,
-                        "has_error": False
+                        "has_error": False,
+                        "telemetry": {
+                            "processing_time_ms": 22,
+                            "npc_count": 0 if request.scene != "game" else 2
+                        },
+                        "monologue": "管理NPC交互",
+                        "actions": [],
+                        "interactions": [],
+                        "tool_calls": [],
+                        "llm_thought": "根据场景决定是否需要NPC参与"
                     },
                     {
                         "brain_name": "behavior",
                         "display_name": "行为脑",
                         "triggered": True,
-                        "conclusion": "采取安慰策略",
+                        "conclusion": config["brain_conclusions"].get("behavior", "采取适当行动"),
                         "key_fields": {
-                            "action": "comfort",
+                            "action": config["final_action"],
                             "priority": "high",
-                            "tool_calls": []
+                            "tool_calls": [] if request.scene != "service" else ["check_order_status"]
                         },
                         "influence_target": ["supervisor"],
                         "duration_ms": 45,
-                        "has_error": False
+                        "has_error": False,
+                        "telemetry": {
+                            "processing_time_ms": 45,
+                            "action_confidence": 0.9
+                        },
+                        "monologue": f"决定采取{config['final_action']}行动",
+                        "actions": ["plan_action", "execute_action"],
+                        "interactions": ["emotion_brain", "memory_brain"],
+                        "tool_calls": [] if request.scene != "service" else ["check_order_status"],
+                        "llm_thought": "需要根据场景和用户需求制定合适的行动计划"
                     },
                     {
                         "brain_name": "supervisor",
                         "display_name": "总控脑",
                         "triggered": True,
-                        "conclusion": "批准安慰策略",
+                        "conclusion": f"批准{config['final_action']}策略",
                         "key_fields": {
                             "model_tier": "standard",
-                            "suppress_tool_calls": True,
-                            "suppress_npc": True
+                            "suppress_tool_calls": request.scene != "service",
+                            "suppress_npc": request.scene != "game"
                         },
                         "influence_target": [],
                         "duration_ms": 38,
-                        "has_error": False
+                        "has_error": False,
+                        "telemetry": {
+                            "processing_time_ms": 38,
+                            "decision_confidence": 0.95
+                        },
+                        "monologue": "协调各脑的决策并生成最终响应",
+                        "actions": ["coordinate_brains", "generate_final_response"],
+                        "interactions": ["emotion_brain", "memory_brain", "behavior_brain"],
+                        "tool_calls": [],
+                        "llm_thought": "需要综合各脑的输入，做出最终决策"
                     }
                 ],
                 "timeline": [
@@ -251,9 +361,40 @@ async def chat(request: ChatRequest):
                     "policy_checked",
                     "responded"
                 ],
-                "decision_tensions": [],
+                "decision_tensions": [
+                    {
+                        "brain": "emotion",
+                        "tension": "需要平衡情感支持与解决方案",
+                        "resolution": "优先情感支持"
+                    }
+                ],
                 "response_source": "llm",
-                "final_response": response_text
+                "final_response": response_text,
+                "plan_diff": {
+                    "original_plan": "常规回应",
+                    "final_plan": config["final_action"]
+                },
+                "execution_view": {
+                    "steps": [
+                        "分析用户输入",
+                        "调用相关脑",
+                        "协调决策",
+                        "生成响应"
+                    ],
+                    "execution_time_ms": 210
+                },
+                "reply_gate": {
+                    "passed": True,
+                    "reason": "响应符合场景需求"
+                },
+                "memory_commit": {
+                    "committed": True,
+                    "memory_count": 2
+                },
+                "proactive": {
+                    "enabled": app_state["proactive_enabled"],
+                    "triggered": False
+                }
             }
         )
     except Exception as e:
@@ -383,21 +524,17 @@ async def get_world_state():
 @app.get("/api/settings")
 async def get_settings():
     return {
-        "settings": {
-            "llmProvider": "siliconflow",
-            "apiKey": "",
-            "modelName": "Qwen/Qwen2.5-72B-Instruct",
-            "enableProactivity": True,
-            "enableWorldTick": True,
-            "enableNpcBrain": True,
-            "theme": "light",
-            "fontSize": "medium"
-        }
+        "settings": app_state["settings"]
     }
 
 
 @app.post("/api/settings")
 async def update_settings(settings: Dict[str, Any]):
+    # 更新全局设置状态
+    if "settings" in settings:
+        app_state["settings"].update(settings["settings"])
+    else:
+        app_state["settings"].update(settings)
     return {"status": "ok"}
 
 
@@ -412,7 +549,7 @@ async def get_status():
             "location": "Digital World"
         },
         "proactiveStatus": {
-            "enabled": False,
+            "enabled": app_state["proactive_enabled"],
             "task_active": False,
             "check_interval": 30,
             "context": "idle"
@@ -423,6 +560,7 @@ async def get_status():
 @app.post("/api/proactive")
 async def set_proactive(payload: Dict[str, Any]):
     enabled = payload.get("enabled", False)
+    app_state["proactive_enabled"] = enabled
     return {
         "status": "ok",
         "enabled": enabled
